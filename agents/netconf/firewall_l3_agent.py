@@ -1,6 +1,6 @@
 ## vim: tabstop=4 shiftwidth=4 softtabstop=4
 #
-# Copyright (c) 2013 OpenStack Foundation.
+# Copyright (c) 2014 OpenStack Foundation.
 # All Rights Reserved.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -15,9 +15,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 #
-# @author: Sumit Naiksatam, sumitnaiksatam@gmail.com, Big Switch Networks, Inc.
-# @author: Sridar Kandaswamy, skandasw@cisco.com, Cisco Systems, Inc.
-# @author: Dan Florea, dflorea@cisco.com, Cisco Systems, Inc.
+# @author: Anirudh Vedantam, anirudh.vedantam@tcs.com, Tata Consultancy Services Ltd.
 
 from oslo.config import cfg
 

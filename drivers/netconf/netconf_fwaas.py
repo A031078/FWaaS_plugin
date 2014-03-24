@@ -15,7 +15,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 #
-# @author: Hemanth N, hemanth.n@tcs.com, Tata Consultancy Services
+# @author: Hemanth N, hemanth.n@tcs.com, Tata Consultancy Services Ltd.
 
 from neutron.agent.linux import ip_lib
 
