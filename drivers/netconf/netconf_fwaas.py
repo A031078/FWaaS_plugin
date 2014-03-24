@@ -15,7 +15,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 #
-# @author: Hemanth N, hemanth.n@tcs.com, Tata Consultancy Services Ltd.
+# @author: Hemanth N, hemanth.n@tcs.com, Tata Consultancy Services
 
 from neutron.agent.linux import ip_lib
 
@@ -36,9 +36,6 @@ class NetconfFwaasDriver(fwaas_base.FwaasDriverBase):
         self.__ncport = "ncport="+ncport
 		self.root_helper = root_helper
 		self.__network_id = network_id
-    
-    def _update_firewall(self, apply_list, firewall):
-        LOG.debug(_("Updating firewall (%s)"), firewall['id'])
 
     def create_firewall(self, apply_list, firewall):
 		LOG.debug(_('Creating firewall %(fw_id)s for tenant %(tid)s)'),
@@ -63,15 +60,6 @@ class NetconfFwaasDriver(fwaas_base.FwaasDriverBase):
         self.executeCommands(command)
         
         return True
-        # TODO: Delete firewall or just firewallpolicy???
-        # delete /vyatta-firewall/firewall-name[name='%s']
-        """
-		command = "delete /vyatta-firewall"  
-	    self.executeCommands(command)	    
-	    return True;
-	    """
-        
-        # return self.apply_default_policy(apply_list, firewall)
 
     def apply_default_policy(self, apply_list, firewall):
 		LOG.debug(_('Applying firewall %(fw_id)s for tenant %(tid)s)'),
@@ -91,16 +79,76 @@ class NetconfFwaasDriver(fwaas_base.FwaasDriverBase):
 		    self.executeCommands(command)
 	    
 	    return True
-		# TODO: Find vyatta command to remove rules of firewall policy
-		# TODO: Any default policies to be hardcoded here??? Ans: Nothing in my VM
-		"""
-        self.rest.auth()
-
-        for ri in apply_list:
-            self._clear_policy(ri, firewall)
-
+    
+    def create_nat(self, apply_list, nat):
+		LOG.debug(_('Applying NAT %(nat_id)s for tenant %(tid)s)'),
+                  {'nat_id': nat['id'], 'tid': nat['tenant_id']})
+        
+	    command_list = []
+	    
+	    vyatta_rules = {
+			"source_address": "replace /vyatta-nat/source/rule[name='%s']/source/address --value='%s'",
+			"outbound_interface": "replace /vyatta-nat/source/rule[name='%s']/outbound-interface --value='%s'",
+			"destination_address": "replace /vyatta-nat/source/rule[name='%s']/destination/address --value='%s'",
+			"translation": "replace /vyatta-nat/source/rule[name='%s']/translation/address --value='%s'"	
+        }
+	    
+	    command_list.append("replace /vyatta-nat/source/rule[name='%s']" % nat['id'])
+	    
+	    for k,v in vyatta_rules:
+			if nat[k]:
+				command_list.append(v % (nat['id'], nat[k]))
+		
+		LOG.debug(_("NAT Policy Command list (%s)"), command_list)
+		
+		for command in commandlist:
+		    self.executeCommands(command)
+	    
+	    return True
+	
+    def delete_nat(self, apply_list, nat):
+		LOG.debug(_('Deleting NAT %(nat_id)s for tenant %(tid)s)'),
+                  {'nat_id': nat['id'], 'tid': nat['tenant_id']})
+        
+        command = "delete /vyatta-nat"
+        self.executeCommands(command)
+        
         return True
-        """
+    
+    def create_zone(self, apply_list, zone):
+	    LOG.debug(_('Applying ZONE %(zone_name)s for tenant %(tid)s)'),
+                  {'zone_name': zone['zone_name'], 'tid': zone['tenant_id']})
+        
+	    command_list = []
+	    
+	    vyatta_rules = {
+			"interface": "replace /vyatta-zone-policy/zone[name='%s']/interface --value='%s'",
+			"default_action": "replace /vyatta-zone-policy/zone[name='%s']/default_action --value='%s'",
+			"from_zone": "replace /vyatta-zone-policy/zone[name='%s']/from[name='%s']",
+			"firewall": "replace /vyatta-zone-policy/zone[name='%s']/firewall/name --value='%s'",
+        }
+        
+        command_list.append("replace /vyatta-zone-policy/zone[name='%s']" % zone['zone_name'])
+        
+        for k,v in vyatta_rules:
+			if zone[k]:
+				command_list.append(v % (zone['zone_name'], zone[k]))
+		
+		LOG.debug(_("ZONE Command list (%s)"), command_list)
+		
+		for command in command_list:
+		    self.executeCommands(command)
+	    
+	    return True
+    
+    def delete_zone(self, apply_list, zone):
+		LOG.debug(_('Deleting ZONE %(zone_name)s for tenant %(tid)s)'),
+                  {'zone_name': zone['zone_name'], 'tid': nat['tenant_id']})
+        
+        command = "delete /vyatta-zone-policy"
+        self.executeCommands(command)
+        
+        return True
     
 	def _update_firewall(self, apply_list, firewall):
         LOG.debug(_("Updating firewall (%s)"), firewall['id'])
@@ -134,53 +182,14 @@ class NetconfFwaasDriver(fwaas_base.FwaasDriverBase):
 				else:
 					LOG.warn(_("Unsupported IP version rule."))
 		
-        
-		"""
-	    vyatta_firewall = "replace /vyatta-firewall"
-	    vyatta_firewall = vyatta_firewall + r"/firewall-name[name='" + firewall_policy['name'] + r"']"
-
-	    if firewall_policy['firewall_rules'] is not None:
-			#Rules are already ordered in model based on position
-			for rule in firewallpolicy['firewall_rules']:
-			    #rule = ast.literal_eval(rule)
-			    rulecommand = vyatta_firewall + r"/rule[name='" + rule['name'] +  r"']"
-
-			    if rule['action'] is not None:
-				    command = rulecommand + r"/action --value='"+ rule['action'] + r"'"
-				    command_list.append(command)
-
-			    if rule['protocol'] is not None:
-				    command = rulecommand + r"/protocol --value='"+ rule['protocol'] + r"'"
-				    command_list.append(command)
-				
-				if rule['source_ip_address'] is not None:
-					command = rulecommand + r"/source/address --value='"+ rule['source_ip_address'] + r"'"
-				    command_list.append(command)
-				
-				if rule['destination_ip_address'] is not None:
-					command = rulecommand + r"/destination/address --value='"+ rule['destination_ip_address'] + r"'"
-				    command_list.append(command)
-				
-				if rule['source_port_range_min'] is not None:
-					command = rulecommand + r"/source/port --value='"+ rule['source_port_range_min'] + r"'"
-				    command_list.append(command)
-				
-				if rule['destination_port_range_min'] is not None:
-					command = rulecommand + r"/destination/port --value='"+ rule['destination_port_range_min'] + r"'"
-				    command_list.append(command)
-
-			    # TODO: State Connection established / State related
-			    # TODO: ENABLE OPTION if not set in RULE
-			    # TODO: Source Port and Port range code just check
-			    # TODO: how to handle IPv6 rules
-		"""
-		
 		LOG.debug(_("Firewall Policy Command list (%s)"), command_list)
 
 	    for command in command_list:
 		    self.executeCommands(command)
 	    
-	    return True;
+	    return True
+	
+	
 
 	def executeCommands(self, command):
 		executionList = ['/home/anirudh/workspace1/OpenYuma-master/netconf/target/bin/yangcli']
