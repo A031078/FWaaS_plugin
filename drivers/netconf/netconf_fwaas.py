@@ -87,22 +87,22 @@ class NetconfFwaasDriver(fwaas_base.FwaasDriverBase):
         command_list = []
 	    
 	vyatta_rules = {
-			"source_address": "replace /vyatta-nat/source/rule[name='%s']/source/address --value='%s'",
-			"outbound_interface": "replace /vyatta-nat/source/rule[name='%s']/outbound-interface --value='%s'",
-			"destination_address": "replace /vyatta-nat/source/rule[name='%s']/destination/address --value='%s'",
-			"translation": "replace /vyatta-nat/source/rule[name='%s']/translation/address --value='%s'"	
+		"source_address": "replace /vyatta-nat/source/rule[name='%s']/source/address --value='%s'",
+		"outbound_interface": "replace /vyatta-nat/source/rule[name='%s']/outbound-interface --value='%s'",
+		"destination_address": "replace /vyatta-nat/source/rule[name='%s']/destination/address --value='%s'",
+		"translation": "replace /vyatta-nat/source/rule[name='%s']/translation/address --value='%s'"	
         }
 	    
 	command_list.append("replace /vyatta-nat/source/rule[name='%s']" % nat['id'])
 	    
-	for k,v in vyatta_rules:
-	    if nat[k]:
-	        command_list.append(v % (nat['id'], nat[k]))
+        for k,v in vyatta_rules:
+        if nat[k]:
+            command_list.append(v % (nat['id'], nat[k]))
 		
-		LOG.debug(_("NAT Policy Command list (%s)"), command_list)
+	LOG.debug(_("NAT Policy Command list (%s)"), command_list)
 		
-		for command in commandlist:
-		    self.executeCommands(command)
+	for command in commandlist:
+	    self.executeCommands(command)
 	    
 	return True
 	
@@ -122,10 +122,10 @@ class NetconfFwaasDriver(fwaas_base.FwaasDriverBase):
         command_list = []
 	    
         vyatta_rules = {
-			"interface": "replace /vyatta-zone-policy/zone[name='%s']/interface --value='%s'",
-			"default_action": "replace /vyatta-zone-policy/zone[name='%s']/default_action --value='%s'",
-			"from_zone": "replace /vyatta-zone-policy/zone[name='%s']/from[name='%s']",
-			"firewall": "replace /vyatta-zone-policy/zone[name='%s']/firewall/name --value='%s'",
+		"interface": "replace /vyatta-zone-policy/zone[name='%s']/interface --value='%s'",
+		"default_action": "replace /vyatta-zone-policy/zone[name='%s']/default_action --value='%s'",
+		"from_zone": "replace /vyatta-zone-policy/zone[name='%s']/from[name='%s']",
+		"firewall": "replace /vyatta-zone-policy/zone[name='%s']/firewall/name --value='%s'",
         }
         
         command_list.append("replace /vyatta-zone-policy/zone[name='%s']" % zone['zone_name'])
@@ -134,10 +134,10 @@ class NetconfFwaasDriver(fwaas_base.FwaasDriverBase):
 	    if zone[k]:
 		command_list.append(v % (zone['zone_name'], zone[k]))
 		
-		LOG.debug(_("ZONE Command list (%s)"), command_list)
+	LOG.debug(_("ZONE Command list (%s)"), command_list)
 		
-		for command in command_list:
-		    self.executeCommands(command)
+	for command in command_list:
+	    self.executeCommands(command)
 	    
         return True
     
@@ -158,12 +158,12 @@ class NetconfFwaasDriver(fwaas_base.FwaasDriverBase):
         command_list = []
         
         vyatta_rules = {
-			"action": "replace /vyatta-firewall/firewall-name[name='%s']/rule[name='%s']/action --value='%s'",
-			"protocol": "replace /vyatta-firewall/firewall-name[name='%s']/rule[name='%s']/protocol --value='%s'",
-			"source_ip_address": "replace /vyatta-firewall/firewall-name[name='%s']/rule[name='%s']/source/address --value='%s'",
-			"destination_ip_address": "replace /vyatta-firewall/firewall-name[name='%s']/rule[name='%s']/destination/address --value='%s'",
-			"source_port_range_min": "replace /vyatta-firewall/firewall-name[name='%s']/rule[name='%s']/source/port --value='%s'",
-			"destination_port_range_min": "replace /vyatta-firewall/firewall-name[name='%s']/rule[name='%s']/destination/port --value='%s'"
+		"action": "replace /vyatta-firewall/firewall-name[name='%s']/rule[name='%s']/action --value='%s'",
+		"protocol": "replace /vyatta-firewall/firewall-name[name='%s']/rule[name='%s']/protocol --value='%s'",
+		"source_ip_address": "replace /vyatta-firewall/firewall-name[name='%s']/rule[name='%s']/source/address --value='%s'",
+		"destination_ip_address": "replace /vyatta-firewall/firewall-name[name='%s']/rule[name='%s']/destination/address --value='%s'",
+		"source_port_range_min": "replace /vyatta-firewall/firewall-name[name='%s']/rule[name='%s']/source/port --value='%s'",
+		"destination_port_range_min": "replace /vyatta-firewall/firewall-name[name='%s']/rule[name='%s']/destination/port --value='%s'"
         }
         
         firewall_policy_name = firewall_policy['name']
@@ -188,8 +188,6 @@ class NetconfFwaasDriver(fwaas_base.FwaasDriverBase):
 	    self.executeCommands(command)
 	    
         return True
-	
-	
 
     def executeCommands(self, command):
 	executionList = ['/home/anirudh/workspace1/OpenYuma-master/netconf/target/bin/yangcli']
