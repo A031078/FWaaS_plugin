@@ -1,4 +1,7 @@
-vyatta_firewall
+FWaaS_plugin
 ===============
 
-Vyatta Firewall plugin for Openstack
+Firewall plugin for Openstack based on netconf
+
+Blueprint Link:
+https://blueprints.launchpad.net/neutron/+spec/tcs-fwaas-netconf-host-plugin
